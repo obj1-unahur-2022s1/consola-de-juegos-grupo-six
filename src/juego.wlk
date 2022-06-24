@@ -4,17 +4,21 @@ import consola.*
 class Juego {
 	const property nivel
 	var property position = null
-	var tiempoRestante = 59
+	var tiempoRestante = 15
+	const velocidad = 10 
 	
 	method iniciar(){
 		game.boardGround("nivel" + nivel.toString() + "-bg.png")
+		game.addVisual(gotty)
     	game.addVisual(valve)
+    	game.sound("Musica.mp3").play()
+    	
     	game.onTick(1000, "contador",{ self.actualizarContador() })
     	self.agregarTablero()
         //game.boardGround("nivelRojo.png")	
 	}
 	method actualizarContador(){
-		game.say(gotty, tiempoRestante.toString())
+		gotty.text("Tiempo restante" + tiempoRestante.toString())
 		tiempoRestante-=1
 		if(tiempoRestante == 0){
 			game.removeTickEvent("contador")
@@ -39,8 +43,11 @@ class Juego {
 	method image() = "nivel" + nivel.toString() + ".png"
 }
 object gotty{
-	method image() = "gotty.png"
+	var property text =  ""
+	
+	method image() = "22.png"
 	method position() = game.at(12,8)
+	
 }
 object selector{
 	var property position = game.origin()
@@ -59,7 +66,7 @@ object valve{
 	//method text()= "Control: "+ color + " - <q> para salir"
 }
 object agua{
-	method image() = "dino.png"
+	method image() = "agua.jpg"
 	method posicion() = game.at(0,0)
 }
 

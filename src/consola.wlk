@@ -17,6 +17,7 @@ object consola {
 	method initialize(){
 		game.height(12)
 		game.width(17)
+		game.cellSize(60)
 		game.boardGround("Menu.png")
 		game.title("Consola de juegos")
 	}
@@ -41,7 +42,6 @@ object consola {
 		self.iniciar()
 	}
 }
-
 
 class MenuIconos{
 	var seleccionado = 1
