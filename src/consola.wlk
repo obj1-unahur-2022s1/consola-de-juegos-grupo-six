@@ -4,12 +4,13 @@ import juego.*
 object consola {
 
 	const juegos = [
-		new Plumber(color="Amarillo"),
-		new Juego(color = "Verde"),
-		new Juego(color = "Rojo"),
-		new Juego(color = "Azul"),
+		new Juego(color="Verde"),
 		new Juego(color = "Naranja"),
+		new Juego(color = "Azul"),
+		new Juego(color = "Rojo"),
+		new Juego(color = "Amarillo"),
 		new Juego(color = "Violeta")
+		
 	]
 	var menu 
 	
@@ -91,5 +92,8 @@ class MenuIconos{
 		seleccionado = (seleccionado - 1).max(1)
 	}
 }
+
+
+
 
 

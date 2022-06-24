@@ -4,6 +4,6 @@ import wollok.game.*
 program juegos {
 
 	consola.iniciar()
-	game.boardGround("fondo.jpg")
+	game.boardGround("Menu.png")
 	game.start()
 }

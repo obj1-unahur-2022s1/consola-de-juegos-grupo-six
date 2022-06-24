@@ -3,10 +3,25 @@ import consola.*
 
 class Juego {
 	var property position = null
-	var property color = null
+	var property color  	
 	
 	method iniciar(){
-        game.addVisual(object{method position()= game.at(9,9) method text() = "Juego "+ color + " - <q> para salir"})		
+    	game.addVisual(
+        	 object{
+        	 	
+        		method position()= game.at(0,-2) 
+        		
+        		method image() = "nivel" + color + ".png"
+        		
+        		//method text()= "Control: "+ color + " - <q> para salir"
+        		
+        	}
+        	)	
+        	//game.boardGround("nivelRojo.png")	
+	}
+	
+	method iniciarNivel(){
+		
 	}
 	
 	method terminar(){
@@ -16,29 +31,31 @@ class Juego {
 	
 
 }
+
+
+/* 
 const direcciones = ["norte", "sur", "este", "oeste"]
-class Plumber inherits Juego{
+class Plumber{
+	
 	const objetivo = game.at(0,0)
-	const tablero = new Tablero(ancho = 6, alto=4)
 	
 	override method iniciar(){
 		//super()
 		//game.addVisualIn(agua,game.at(0,0))
-		//game.addVisualIn(tuberia,game.center().down(3))
+		game.addVisualIn(tuberia,game.center().down(3))
 	}
 }
+ 
 class Tablero{
 	const ancho
 	const alto
 	
-	method initialize(){
-		alto.forEach({ y =>
-			ancho.forEach({ x =>
-				game.addVisualIn(new Tuberia(image="tbr.png"),game.at(x, y))
-			})
-		})
+	//method initialize(){
+	//	alto.forEach({ y =>
+	//		ancho.forEach({ x =>game.addVisualIn(new Tuberia(image="tbr.png"),game.at(x, y))})
+	//	})
 		
-	}
+	//}
 }
 
 object agua{
@@ -58,10 +75,10 @@ class Tuberia{
 	method siguienteDireccion(posicion){
 		//(4,3) -X
 		if(self.dirHorizontal()){
-			const newX = self.posicion().x - posicion.x // -1
+			const newX = self.posicion().x() - posicion.x() // -1
 			return posicion.rigth(newX*2)//(-2,0)
 		}
-		const newY = self.posicion().y - posicion.y
+		const newY = self.posicion().y() - posicion.y()
 		return posicion.up(newY*2)
 	}
 	
@@ -74,16 +91,16 @@ class Tuberia{
 
 class TuberiaL inherits Tuberia{
 	
-	override method guiarAgua(){}
+	//override method guiarAgua(){}
 }
 
 class TuberiaCruz inherits Tuberia{
 	
-	override method guiarAgua(){}
+	//override method guiarAgua(){}
 	
 }
 
-
+*/
 
 
 
