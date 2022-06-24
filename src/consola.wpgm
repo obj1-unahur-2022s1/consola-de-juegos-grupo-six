@@ -2,8 +2,6 @@ import consola.*
 import wollok.game.*
 
 program juegos {
-
 	consola.iniciar()
-	game.boardGround("Menu.png")
 	game.start()
 }

@@ -2,21 +2,22 @@ import wollok.game.*
 import juego.*
 
 object consola {
-
+	var menu
+	
 	const juegos = [
-		new Juego(color="Verde"),
-		new Juego(color = "Naranja"),
-		new Juego(color = "Azul"),
-		new Juego(color = "Rojo"),
-		new Juego(color = "Amarillo"),
-		new Juego(color = "Violeta")
+		new Juego(nivel = 1),
+		new Juego(nivel = 2),
+		new Juego(nivel = 3),
+		new Juego(nivel = 4),
+		new Juego(nivel = 5),
+		new Juego(nivel = 6)
 		
 	]
-	var menu 
 	
 	method initialize(){
 		game.height(12)
 		game.width(17)
+		game.boardGround("Menu.png")
 		game.title("Consola de juegos")
 	}
 	
