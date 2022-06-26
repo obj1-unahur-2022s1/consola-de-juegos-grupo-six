@@ -1,5 +1,5 @@
 import wollok.game.* 
-import juego.*
+import patoTheGame.*
 
 object consola {
 	var menu
