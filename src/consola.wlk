@@ -1,36 +1,39 @@
 import wollok.game.* 
-import patoTheGame.*
+import juego.*
 
 object consola {
-	var menu
-	
+
 	const juegos = [
-		new Juego(nivel = 1),
-		new Juego(nivel = 2),
-		new Juego(nivel = 3),
-		new Juego(nivel = 4),
-		new Juego(nivel = 5),
-		new Juego(nivel = 6)
-		
+		new Juego(color = "Amarillo"),
+		new Juego(color = "Verde"),
+		new Juego(color = "Rojo"),
+		new Juego(color = "Azul"),
+		new Juego(color = "Naranja"),
+		new Juego(color = "Violeta")
 	]
-	
+	var menu 
+
 	method initialize(){
-		game.height(12)
-		game.width(17)
-		game.cellSize(60)
-		game.boardGround("Menu.png")
+		//game.height(12)
+		//game.width(17)
 		game.title("Consola de juegos")
+		
+		game.height(alto)
+		game.width(ancho)
+		game.ground("ground.png")
+		game.boardGround("scene.png")
+		
 	}
-	
+
 	method iniciar(){
 		menu = new MenuIconos(posicionInicial = game.center().left(2))	
 		game.addVisual(menu)
 		juegos.forEach{juego=>menu.agregarItem(juego)}
 		menu.dibujar()
 		keyboard.enter().onPressDo{self.hacerIniciar(menu.itemSeleccionado())}
-		
+
 	}
-	
+
 	method hacerIniciar(juego){
 		game.clear()
 		keyboard.q().onPressDo{self.hacerTerminar(juego)}
@@ -43,20 +46,21 @@ object consola {
 	}
 }
 
+
 class MenuIconos{
 	var seleccionado = 1
 	const ancho = 3
 	const espaciado = 2
 	const items = new Dictionary() 
 	var posicionInicial
-	
+
 	method initialize(){
 		keyboard.up().onPressDo{self.arriba()}
 		keyboard.down().onPressDo{self.abajo()}
 		keyboard.right().onPressDo{self.derecha()}
 		keyboard.left().onPressDo{self.izquierda()}
 	}
-	
+
 	method agregarItem(item){
 		items.put(items.size()+1, item)
 	}
@@ -67,10 +71,10 @@ class MenuIconos{
 			game.addVisual(visual)
 		}
 	}
-	
+
 	method horizontal(indice) = (indice-1)% ancho * espaciado
 	method vertical(indice) = (indice-1).div(ancho) * espaciado
-	
+
 	method posicionDe(indice) =
 		posicionInicial
 			.up(self.vertical(indice))
@@ -93,7 +97,6 @@ class MenuIconos{
 		seleccionado = (seleccionado - 1).max(1)
 	}
 }
-
 
 
 

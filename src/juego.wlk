@@ -2,149 +2,233 @@ import wollok.game.*
 import consola.*
 
 class Juego {
-	const property nivel
 	var property position = null
-	var tiempoRestante = 15
-	const velocidad = 10 
-	
+	var property color 
+
 	method iniciar(){
-		game.boardGround("nivel" + nivel.toString() + "-bg.png")
-		game.addVisual(gotty)
-    	game.addVisual(valve)
-    	game.sound("Musica.mp3").play()
-    	
-    	game.onTick(1000, "contador",{ self.actualizarContador() })
-    	self.agregarTablero()
-        //game.boardGround("nivelRojo.png")	
+		gameDirector.iniciar()
+   //     game.addVisual(object{method position()= game.center() method text() = "Juego "+color + " - <q> para salir"})		
 	}
-	method actualizarContador(){
-		gotty.text("Tiempo restante" + tiempoRestante.toString())
-		tiempoRestante-=1
-		if(tiempoRestante == 0){
-			game.removeTickEvent("contador")
-			game.say(gotty, "Se acabó el tiempo!")
-			//abrirValvula()
+
+	method terminar(){
+		gameDirector.terminar()
+	}
+	method image() = "juego" + color + ".png"
+
+
+}
+
+const alto = 10
+const ancho = 20
+
+
+object gameDirector{
+	const vehiculos = [
+		//new Vehiculo(),
+		new Vehiculo()
+	]
+	var property vidas
+	
+	method initialize(){
+		// Configuracion de console
+		game.height(alto)
+		game.width(ancho)
+		game.ground("ground.png")
+		game.boardGround("scene.png")
+		
+		// Configuracion del juego
+		self.reiniciarConfiguracion()
+	}
+	method reiniciarConfiguracion(){
+		vidas = 3
+		pollo.puntaje(0)
+		pollo.reiniciarPosicion()
+		game.onTick(120, "vehicleDrive", { self.conducirTodos() })
+		//game.keyboardEvent(reiniciar)
+	}
+	method iniciar(){
+		game.addVisual(score)
+		game.addVisualCharacter(pollo)
+		game.onCollideDo(pollo,{ obstaculo => obstaculo.colisiona()})
+		self.cantidadDeVehiculos().times({ i =>
+			game.schedule(i * 80, {self.instanciarVehiculo(i)})
+		})
+		
+		ancho.times({ i =>
+			self.instanciarMeta(i)
+		})
+	}
+	method aumentarVehiculos(){
+		//3.times({ i =>
+		if (vehiculos.size() < 15){
+			vehiculos.add(new Vehiculo())
+			//self.instanciarVehiculo(vehiculos.size()-1 + i)
+			self.instanciarVehiculo(vehiculos.size()-1)
 		}
+		//})
 	}
-	method agregarTablero(){
-		//altura = 8, ancho = 10
-		
-		
-		
-		/*for y in range(0,8)
-			for x in range(0,12)
-			 	tuberia.at(x,y)
-		 		game.addVisual(tuberia)
-		*/
+	method cantidadDeVehiculos(){
+		return vehiculos.size()-1
+	}
+	method instanciarVehiculo(i){
+		game.addVisual(vehiculos.get(i))
+		vehiculos.get(i).initialize()
+	}
+	method instanciarMeta(i){
+		game.addVisual(new Meta(position = game.at(i-1, 9)))
+	}
+	method conducirTodos(){
+		vehiculos.forEach({ v=>
+			v.conducir()
+		})
+	}
+	method perderVida(){
+		vidas -= 1
+		if (vidas == 0){
+			self.perder()
+		}
+		vidas = vidas.max(0)
+		pollo.reiniciarPosicion()
+	}
+	method perder(){
+		game.removeTickEvent("vehicleDrive")
+		pollo.tenerAccidente()
 	}
 	method terminar(){
-		selector.reiniciarPosicion()
+		pollo.puntaje(0)
+		pollo.reiniciarPosicion()
 	}
-	method image() = "nivel" + nivel.toString() + ".png"
 }
-object gotty{
-	var property text =  ""
-	
-	method image() = "22.png"
-	method position() = game.at(12,8)
-	
+class Meta{
+    const property image = "fizz.png"
+    var property position
+
+    method colisiona(){
+    	pollo.aumentarPuntaje(1)
+    	pollo.position(game.at(10,0))
+    	game.addVisual(new Danger(position = position))
+        game.removeVisual(self)
+        
+        3.times({ i =>
+        	gameDirector.aumentarVehiculos()
+        })
+        
+        /*
+        gameDirector.aumentarVehiculos()
+        gameDirector.aumentarVehiculos()
+        gameDirector.aumentarVehiculos()
+        gameDirector.aumentarVehiculos()
+        gameDirector.aumentarVehiculos()
+        gameDirector.aumentarVehiculos()
+        */
+        
+        //game.removeVisual(pollo)
+        //game.removeTickEvent("vehicleDrive")
+        
+        //game.addVisual(pollo)
+        //game.addVisual(win)
+    }
 }
-object selector{
-	var property position = game.origin()
+class Vehiculo{
+	var property viaDerecha = true
+	var property position = game.at(-10.randomUpTo(30).roundUp(), 1.randomUpTo(8).roundUp())//self.posicionInicial()
+	var property velocidad = 1//(0.05).randomUpTo(0.5)
 	
-	method image() = "cursor.png"
+	method conducir(){
+		position = position.left( self.direccion() )
+		if(viaDerecha && position.x() < 1) self.reiniciarPosicion()
+		if(not viaDerecha && position.x() > ancho - 1) self.reiniciarPosicion()
+	}
+	method direccion(){
+		if (viaDerecha) return 1 * velocidad
+		return -1 * velocidad
+	}
 	method reiniciarPosicion(){
-		position = game.at(0,8)
+		position.y()
+		viaDerecha = position.y() % 2 == 0
+		position = self.posicionInicial()
 	}
-}
-object valve{
-	
-	
-	method position() = game.at(0,-2) 
-	method image() = "valve.png"
-	
-	//method text()= "Control: "+ color + " - <q> para salir"
-}
-object agua{
-	method image() = "agua.jpg"
-	method posicion() = game.at(0,0)
-}
-
-/* 
-class Plumber{
-	
-	const objetivo = game.at(0,0)
-	
-	override method iniciar(){
-		//super()
-		//game.addVisualIn(agua,game.at(0,0))
-		game.addVisualIn(tuberia,game.center().down(3))
-	}
-}
- 
-class Tablero{
-	const ancho
-	const alto
-	
-	//method initialize(){
-	//	alto.forEach({ y =>
-	//		ancho.forEach({ x =>game.addVisualIn(new Tuberia(image="tbr.png"),game.at(x, y))})
-	//	})
+	method posicionInicial(){
+		const yPos = 1.randomUpTo(8).roundUp()
+		viaDerecha = (yPos % 2 == 0)
 		
-	//}
-}
-
-
-
-//agua.posicion( tuberia.siguienteDireccion(agua.posicion()) )
-
-
-class Tuberia{
-	const direcciones = ["norte", "sur", "este", "oeste"]
-	var property image
-	const property dir = direcciones.anyOne()
-	//(3,3)
-	
-	method siguienteDireccion(posicion){
-		//(4,3) -X
-		if(self.dirHorizontal()){
-			const newX = self.posicion().x() - posicion.x() // -1
-			return posicion.rigth(newX*2)//(-2,0)
+		if(viaDerecha){
+			return game.at(ancho.randomUpTo(ancho*2).roundUp(),yPos /* 100*/)
 		}
-		const newY = self.posicion().y() - posicion.y()
-		return posicion.up(newY*2)
+		return game.at(-ancho.randomUpTo(0).roundUp(), yPos /* 100*/)
 	}
-	
-	method dirHorizontal(){
-		return dir == "este" || dir == "oeste"
+	method colisiona(){
+		game.say(self, "COLISION!")
+		gameDirector.perderVida()
+		//game.removeTickEvent("vehicleDrive")
 	}
+	method image() = "coco1.png"
+	//method text() = position.y().toString()
+}
+class Danger{
+    const property image = "muerte2.png"
+    var property position
+
+    method colisiona(){
+    	gameDirector.perderVida()
+		//game.removeVisual(pollo)
+        //game.removeTickEvent("vehicleDrive")
+        
+        //game.addVisual(pollo)
+        //game.addVisual(win)
+    }
+}
+object pollo{
+	var property position = self.posicionInicial()
+	var property puntaje = 0
 	
-	method posicion() = game.at(0,0)
+	method aumentarPuntaje(puntos){
+		puntaje += puntos
+		if(puntaje == 20){
+			game.removeTickEvent("vehicleDrive")
+			score.position(game.center())
+			game.removeVisual(self)
+			game.addVisual(polloWin)
+		}
+	}
+	method tenerAccidente(){
+		game.removeVisual(self)
+		game.addVisual(polloWin)
+	}
+	method reiniciarPosicion() { position = self.posicionInicial() }
+	method posicionInicial() = game.at(ancho / 2 ,0)
+	method image() = "patoFrente.png"
+}
+object polloWin{
+	var property position = pollo.position()
+	
+	method image() = "patoFrente.png"
+}
+object score{
+	var property position = game.at(16, 0)
+	
+	method text() = "PUNTOS: " + pollo.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
+
+	method colisiona(){}
 }
 
-class TuberiaL inherits Tuberia{
-	
-	//override method guiarAgua(){}
-}
+/*class Vehiculo{
+  const posicionInicial = game.at(game.width()-1,suelo.position().y())
+  var position = posicionInicial
 
-class TuberiaCruz inherits Tuberia{
-	
-	//override method guiarAgua(){}
-	
-}
+  method image() = "coco1.png"
+  method position() = position
+  method iniciar(){
+      position = posicionInicial
+      game.onTick(velocidad,"moverVehiculo",{self.mover()})
+  }
 
-*/
-
-
-
-
-
-
-
-
-
-
-
+  method mover(){
+      position = position.left(1)
+      if (position.x() == -1)
+      position = posicionInicial
+  }
+}*/
 
 
 
