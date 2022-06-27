@@ -3,12 +3,12 @@ import juego.*
 
 object consola {
 	const juegos = [
-		new Juego(indice = 1, titulo = "Amarillo"),
-		new Juego(indice = 2, titulo = "Verde", velocidadDeAutos = 200),
-		new Juego(indice = 3, titulo = "Rojo", velocidadDeAutos = 200, vehiculosPorPunto = 4),
-		new Juego(indice = 4, titulo = "Azul", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 4),
-		new Juego(indice = 5, titulo = "Naranja", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
-		new Juego(indice = 6, titulo = "Violeta", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
+		new Juego(indice = 1, titulo = "desiertoNevado"),
+		new Juego(indice = 2, titulo = "nivelDos", velocidadDeAutos = 200),
+		new Juego(indice = 3, titulo = "nivelTres", velocidadDeAutos = 200, vehiculosPorPunto = 4),
+		new Juego(indice = 4, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 4),
+		new Juego(indice = 5, titulo = "nivelDos", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
+		new Juego(indice = 6, titulo = "nivelTres", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
 	]
 	var menu 
 
@@ -16,10 +16,12 @@ object consola {
 		game.title("Consola de juegos")
 		game.height(alto)
 		game.width(ancho)
-		game.ground("ground.png")
 		game.boardGround("scene.png")
 	}
-
+	method reiniciarNivel(juego) {
+        juego.terminar()
+        self.hacerIniciar(juego) 
+    }
 	method iniciar(){
 		menu = new MenuIconos(posicionInicial = game.center().left(2))	
 		game.addVisual(menu)
@@ -29,6 +31,7 @@ object consola {
 	}
 	method hacerIniciar(juego){	
 		game.clear()
+		keyboard.r().onPressDo{self.reiniciarNivel(juego)}
 		keyboard.q().onPressDo{self.hacerTerminar(juego)}
 		juego.iniciar()
 	}

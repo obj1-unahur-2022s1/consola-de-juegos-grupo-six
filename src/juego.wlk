@@ -10,18 +10,40 @@ class Juego {
 	const vehiculosPorPunto = 3
 
 	method iniciar(){
+		vestimenta.vestimentaActual(titulo)
 		gameDirector.iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto)
 	}
-
 	method terminar(){
 		gameDirector.terminar()
 	}
 	method image() = "items/" + indice.toString() + ".png"
-	//method text() = titulo.toString()
 }
 
-const alto = 10
-const ancho = 20
+object vestimenta{
+    var property vestimentaActual = ""
+
+	method meta() = vestimentaActual + "/meta.png" // Objetivo del pato
+	method pato() = "pato.png"
+	method patoMorido() = "patoMorido.png"
+	
+	method vehiculo(i) = vestimentaActual + "/" + i.toString() + "vehiculo.png" // Auto - 1vehiculo.png
+	method vehiculoFlip(i) = vestimentaActual + "/" + i.toString() + "vehiculoFlip.png" // Auto invertido - 1vehiculoFlip.png
+	
+	method fondo() = vestimentaActual + "/fondo.png" // Fondo del escenario
+	
+	method actualizarVestimentas(){
+		fondo.actualizarFondo()
+		patoFail.actualizarFondo()
+	}
+}
+object vida{
+	var property image = "3vidas.png"
+	var property position = game.at(0, 0)
+	method text() = "VIDAS"
+}
+
+const alto = 10 // 10 x 50 500
+const ancho = 20 // 20 x 50 1000
 
 object gameDirector{
 	const vehiculos = []
@@ -34,16 +56,18 @@ object gameDirector{
 	}
 	method reiniciarConfiguracion(){
 		vidas = 3
-		pollo.puntaje(0)
-		pollo.reiniciarPosicion()
+		pato.puntaje(0)
+		pato.reiniciarPosicion()
 		score.reiniciarPosicion()
 		vehiculos.clear()
 		//game.keyboardEvent(reiniciar)
 	}
 	method iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto){
+		vestimenta.actualizarVestimentas()
+		game.addVisual(fondo)
 		game.addVisual(score)
-		game.addVisualCharacter(pollo)
-		game.onCollideDo(pollo,{ obstaculo => obstaculo.colisiona()})
+		game.addVisualCharacter(pato)
+		game.onCollideDo(pato,{ obstaculo => obstaculo.colisiona()})
 		game.onTick(velocidadDeAutos, "vehicleDrive", { self.conducirTodos() })
 		maximoAutos = maximoDeAutos
 		incrementoDeVehiculos = vehiculosPorPunto
@@ -82,24 +106,24 @@ object gameDirector{
 			self.perder()
 		}
 		vidas = vidas.max(0)
-		pollo.reiniciarPosicion()
+		pato.reiniciarPosicion()
 	}
 	method perder(){
 		game.removeTickEvent("vehicleDrive")
-		pollo.tenerAccidente()
+		pato.tenerAccidente()
 	}
 	method terminar(){
 		self.reiniciarConfiguracion()
 	}
 }
 class Meta{
-    const property image = "fizz.png"
+    const property image = vestimenta.meta()
     const vehiculosAGenerar = 0
     var property position
 
     method colisiona(){
-    	pollo.aumentarPuntaje(1)
-    	pollo.position(game.at(10,0))
+    	pato.aumentarPuntaje(1)
+    	pato.position(game.at(10,0))
     	game.addVisual(new Danger(position = position))
         game.removeVisual(self)
         
@@ -111,7 +135,9 @@ class Meta{
 class Vehiculo{
 	var property viaDerecha = true
 	var property position = game.at(-10.randomUpTo(30).roundUp(), 1.randomUpTo(8).roundUp())//self.posicionInicial()
-	var property velocidad = 1//(0.05).randomUpTo(0.5)
+	var property velocidad = 1
+	var indiceVehiculo = 1.randomUpTo(1).roundUp()
+	var property image = vestimenta.vehiculo(indiceVehiculo)
 	
 	method conducir(){
 		position = position.left( self.direccion() )
@@ -123,6 +149,7 @@ class Vehiculo{
 		return -1 * velocidad
 	}
 	method reiniciarPosicion(){
+		indiceVehiculo = 1.randomUpTo(1).roundUp()
 		position.y()
 		viaDerecha = position.y() % 2 == 0
 		position = self.posicionInicial()
@@ -132,8 +159,10 @@ class Vehiculo{
 		viaDerecha = (yPos % 2 == 0)
 		
 		if(viaDerecha){
+			image = vestimenta.vehiculoFlip(indiceVehiculo)
 			return game.at(ancho.randomUpTo(ancho*2).roundUp(),yPos /* 100*/)
 		}
+		image = vestimenta.vehiculo(indiceVehiculo)
 		return game.at(-ancho.randomUpTo(0).roundUp(), yPos /* 100*/)
 	}
 	method colisiona(){
@@ -141,7 +170,6 @@ class Vehiculo{
 		gameDirector.perderVida()
 		//game.removeTickEvent("vehicleDrive")
 	}
-	method image() = "coco1.png"
 	//method text() = position.y().toString()
 }
 class Danger{
@@ -152,43 +180,55 @@ class Danger{
     	gameDirector.perderVida()
     }
 }
-object pollo{
+object fondo{
+	var property image = vestimenta.fondo()
+	
+	method actualizarFondo(){
+		image = vestimenta.fondo()
+	}
+	method position() = game.origin()
+}
+object pato{
 	var property position = self.posicionInicial()
 	var property puntaje = 0
+	var property image = vestimenta.pato()
 	
 	method aumentarPuntaje(puntos){
 		puntaje += puntos
 		if(puntaje == 20){
 			game.removeTickEvent("vehicleDrive")
 			score.position(game.center())
-			polloWin.posicionarAlPollo()
+			patoWin.posicionarAlpato()
 			game.removeVisual(self)
-			game.addVisual(polloWin)
+			game.addVisual(patoWin)
 		}
 	}
 	method tenerAccidente(){
-		polloFail.posicionarAlPollo()
+		patoFail.posicionarAlpato()
 		game.removeVisual(self)
-		game.addVisual(polloFail)
+		game.addVisual(patoFail)
 	}
 	method reiniciarPosicion() { position = self.posicionInicial() }
 	method posicionInicial() = game.at(ancho / 2 ,0)
-	method image() = "patoFrente.png"
 }
-object polloWin{
-	var property position = pollo.position()
+object patoWin{
+	var property position = pato.position()
+	var property image = vestimenta.pato()
 	
-	method image() = "patoFrente.png"
-	method posicionarAlPollo(){
-		position = pollo.position()
+	method posicionarAlpato(){
+		image = vestimenta.pato()
+		position = pato.position()
 	}
 }
-object polloFail{
-	var property position = pollo.position()
+object patoFail{
+	var property position = pato.position()
+	var property image = vestimenta.patoMorido()
 	
-	method image() = "patoFail.png"
-	method posicionarAlPollo(){
-		position = pollo.position()
+	method posicionarAlpato(){
+		position = pato.position()
+	}
+	method actualizarFondo(){
+		image = vestimenta.fondo()
 	}
 }
 object score{
@@ -200,7 +240,7 @@ object score{
 	method reiniciarPosicion(){
 		position = self.posicionInicial()
 	}
-	method text() = "PUNTOS: " + pollo.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
+	method text() = "PUNTOS: " + pato.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
 	method colisiona(){}
 }
 
