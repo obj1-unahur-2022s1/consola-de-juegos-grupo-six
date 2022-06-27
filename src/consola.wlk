@@ -4,11 +4,11 @@ import juego.*
 object consola {
 	const juegos = [
 		new Juego(indice = 1, titulo = "desiertoNevado"),
-		new Juego(indice = 2, titulo = "nivelDos", velocidadDeAutos = 200),
-		new Juego(indice = 3, titulo = "nivelTres", velocidadDeAutos = 200, vehiculosPorPunto = 4),
+		new Juego(indice = 2, titulo = "desiertoNevado", velocidadDeAutos = 200),
+		new Juego(indice = 3, titulo = "desiertoNevado", velocidadDeAutos = 200, vehiculosPorPunto = 4),
 		new Juego(indice = 4, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 4),
-		new Juego(indice = 5, titulo = "nivelDos", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
-		new Juego(indice = 6, titulo = "nivelTres", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
+		new Juego(indice = 5, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
+		new Juego(indice = 6, titulo = "desiertoNevado", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
 	]
 	var menu 
 

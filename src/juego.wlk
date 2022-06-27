@@ -4,42 +4,19 @@ import consola.*
 class Juego {
 	var property position = null
 	var property titulo
-	const indice = 0
+	const indice = 0 // Indice de imagen en consola
 	const maximoDeAutos = 15
-	const velocidadDeAutos = 300
+	const velocidadDeAutos = 300 // Tiempo entre pasos para vehiculos
 	const vehiculosPorPunto = 3
 
 	method iniciar(){
-		vestimenta.vestimentaActual(titulo)
+		vestimenta.vestimentaActual(titulo) // Establece la vestimenta antes de iniciar
 		gameDirector.iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto)
 	}
 	method terminar(){
 		gameDirector.terminar()
 	}
 	method image() = "items/" + indice.toString() + ".png"
-}
-
-object vestimenta{
-    var property vestimentaActual = ""
-
-	method meta() = vestimentaActual + "/meta.png" // Objetivo del pato
-	method pato() = "pato.png"
-	method patoMorido() = "patoMorido.png"
-	
-	method vehiculo(i) = vestimentaActual + "/" + i.toString() + "vehiculo.png" // Auto - 1vehiculo.png
-	method vehiculoFlip(i) = vestimentaActual + "/" + i.toString() + "vehiculoFlip.png" // Auto invertido - 1vehiculoFlip.png
-	
-	method fondo() = vestimentaActual + "/fondo.png" // Fondo del escenario
-	
-	method actualizarVestimentas(){
-		fondo.actualizarFondo()
-		patoFail.actualizarFondo()
-	}
-}
-object vida{
-	var property image = "3vidas.png"
-	var property position = game.at(0, 0)
-	method text() = "VIDAS"
 }
 
 const alto = 10 // 10 x 50 500
@@ -60,27 +37,33 @@ object gameDirector{
 		pato.reiniciarPosicion()
 		score.reiniciarPosicion()
 		vehiculos.clear()
-		//game.keyboardEvent(reiniciar)
 	}
 	method iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto){
 		vestimenta.actualizarVestimentas()
+		
+		// Agrega visuales principales
 		game.addVisual(fondo)
 		game.addVisual(score)
 		game.addVisualCharacter(pato)
+		
+		// Configura colisiones y corutinas
 		game.onCollideDo(pato,{ obstaculo => obstaculo.colisiona()})
 		game.onTick(velocidadDeAutos, "vehicleDrive", { self.conducirTodos() })
+		
+		// Se agregan los vehiculos iniciales
 		maximoAutos = maximoDeAutos
 		incrementoDeVehiculos = vehiculosPorPunto
-		
 		incrementoDeVehiculos.times({ i=>
 			self.aumentarVehiculos()
 		})
+		
+		// Se agregan los objetivos a recolectar
 		ancho.times({ i =>
 			self.instanciarMeta(i, vehiculosPorPunto)
 		})
 	}
 	method aumentarVehiculos(){
-		if (vehiculos.size() < maximoAutos){
+		if (vehiculos.size() < maximoAutos){ // Se valida que no se exceda el limite
 			vehiculos.add(new Vehiculo())
 			self.instanciarVehiculo(vehiculos.size()-1)
 		}
@@ -102,21 +85,44 @@ object gameDirector{
 	}
 	method perderVida(){
 		vidas -= 1
-		if (vidas == 0){
-			self.perder()
-		}
-		vidas = vidas.max(0)
+		if (vidas == 0) self.perder() 
+		vidas = vidas.max(0) // Se evita que baje de 0 en caso de suceder (aunque no deberia)
 		pato.reiniciarPosicion()
 	}
 	method perder(){
-		game.removeTickEvent("vehicleDrive")
+		game.removeTickEvent("vehicleDrive") // Se pausan los vehiculos
 		pato.tenerAccidente()
 		game.sound("gameOver.mp3").play()
 	}
 	method terminar(){
-		self.reiniciarConfiguracion()
+		self.reiniciarConfiguracion() // Se reestablece todo
 	}
 }
+
+object vestimenta{
+    var property vestimentaActual = ""
+
+	method meta() = vestimentaActual + "/meta.png" // Objetivo del pato
+	method danger() = vestimentaActual + "/danger.png" // Objetivo del pato
+	method pato() = "pato.png"
+	method patoMorido() = "patoMorido.png"
+	
+	method vehiculo(i) = vestimentaActual + "/" + i.toString() + "vehiculo.png" // Auto - 1vehiculo.png
+	method vehiculoFlip(i) = vestimentaActual + "/" + i.toString() + "vehiculoFlip.png" // Auto invertido - 1vehiculoFlip.png
+	
+	method fondo() = vestimentaActual + "/fondo.png" // Fondo del escenario
+	
+	method actualizarVestimentas(){
+		fondo.actualizarFondo()
+		patoFail.actualizarFondo()
+	}
+}
+object vida{ // Aun sin terminar
+	var property image = "3vidas.png"
+	var property position = game.at(0, 0)
+	method text() = "VIDAS"
+}
+
 class Meta{
     const property image = vestimenta.meta()
     const vehiculosAGenerar = 0
@@ -124,70 +130,80 @@ class Meta{
 
     method colisiona(){
     	pato.aumentarPuntaje(1)
-    	pato.position(game.at(10,0))
+    	pato.reiniciarPosicion()
+    	//pato.position(game.at(10,0))
+    	
+    	// Se reemplaza por un Danger
     	game.addVisual(new Danger(position = position))
         game.removeVisual(self)
-        game.sound("coin.mp3").play()
         
+        game.sound("coin.mp3").play()
         vehiculosAGenerar.times({ i =>
-        	gameDirector.aumentarVehiculos()
+        	gameDirector.aumentarVehiculos() // Se agregan algunos vehiculos al recolectar el objetivo
         })
     }
 }
 class Vehiculo{
 	var property viaDerecha = true
-	var property position = game.at(-10.randomUpTo(30).roundUp(), 1.randomUpTo(8).roundUp())//self.posicionInicial()
+	var property position = game.at(-10.randomUpTo(30).roundUp(), 1.randomUpTo(8).roundUp()) // Posicion aleatoria sin normalizar
 	var property velocidad = 1
-	var indiceVehiculo = 1.randomUpTo(1).roundUp()
+	var indiceVehiculo = self.indiceAleatorioNuevo() // Define cual skin de vehiculo utiliza
 	var property image = vestimenta.vehiculo(indiceVehiculo)
 	
 	method conducir(){
 		self.decirAlgo()
+		
+		//Moverse
 		position = position.left( self.direccion() )
-		if(viaDerecha && position.x() < 1) self.reiniciarPosicion()
+		
+		// Reposicionar al irse de los limites
+		if(viaDerecha && position.x() < 0) self.reiniciarPosicion()
 		if(not viaDerecha && position.x() > ancho - 1) self.reiniciarPosicion()
 	}
+	method indiceAleatorioNuevo(){
+		return 0.randomUpTo(3).roundUp()
+	}
 	method direccion(){
-		if (viaDerecha) return 1 * velocidad
-		return -1 * velocidad
+		if (viaDerecha) return 1 * velocidad // Se mueve hacia la derecha
+		return -1 * velocidad // Se mueve hacia la izquierda
 	}
 	method reiniciarPosicion(){
-		indiceVehiculo = 1.randomUpTo(1).roundUp()
-		position.y()
-		viaDerecha = position.y() % 2 == 0
+		indiceVehiculo = self.indiceAleatorioNuevo() // Aleatoriza nuevamente su skin
+		//position.y()
+		viaDerecha = position.y() % 2 == 0 // Define su direccion basado en la paridad del carril
 		position = self.posicionInicial()
 	}
 	method posicionInicial(){
-		const yPos = 1.randomUpTo(8).roundUp()
+		const yPos = 1.randomUpTo(8).roundUp() // Define algun carril de los 8 disponibles
 		viaDerecha = (yPos % 2 == 0)
 		
 		if(viaDerecha){
 			image = vestimenta.vehiculoFlip(indiceVehiculo)
-			return game.at(ancho.randomUpTo(ancho*2).roundUp(),yPos /* 100*/)
+			return game.at(ancho.randomUpTo(ancho*2).roundUp(), yPos)
 		}
 		image = vestimenta.vehiculo(indiceVehiculo)
-		return game.at(-ancho.randomUpTo(0).roundUp(), yPos /* 100*/)
+		return game.at(-ancho.randomUpTo(0).roundUp(), yPos)
 	}
 	method colisiona(){
 		gameDirector.perderVida()
 		game.sound("colision.mp3").play()
-		//game.removeTickEvent("vehicleDrive")
 	}
 	method decirAlgo() {
 		const frasesRandom = ["TENGO HAMBRE","CUIDAO PATO","2+2=5","CUIDAO POLLO",
 								"GRUPO SIX","BIP BIP","ESTOY LOCO","ELLA NO TE AMA"]
-		if (1.randomUpTo(25).roundUp() < 3){
+		
+		if (1.randomUpTo(30).roundUp() < 3){ // Se define la chance de que diga algo
 			game.say(self,frasesRandom.anyOne())
 		}	
 	}
-	//method text() = position.y().toString()
 }
 class Danger{
-    const property image = "muerte2.png"
+    const property image = vestimenta.danger()
     var property position
 
     method colisiona(){
     	gameDirector.perderVida()
+    	game.sound("colision.mp3").play()
     }
 }
 object fondo{
@@ -206,11 +222,15 @@ object pato{
 	method aumentarPuntaje(puntos){
 		puntaje += puntos
 		if(puntaje == 20){
-			game.removeTickEvent("vehicleDrive")
-			score.position(game.center())
-			patoWin.posicionarAlpato()
+			game.removeTickEvent("vehicleDrive") // Detiene los vehiculos
+			score.position(game.center()) // Centra el puntaje al ganar
+			patoWin.posicionarAlpato() // Reposiciona al pato para que no sea controlable
+			
+			// Se reemplaza por el pato no controlable
 			game.removeVisual(self)
 			game.addVisual(patoWin)
+			
+			// You win :D
 			game.sound("win.mp3").play()
 		}
 	}
@@ -254,29 +274,3 @@ object score{
 	method text() = "PUNTOS: " + pato.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
 	method colisiona(){}
 }
-
-/*class Vehiculo{
-  const posicionInicial = game.at(game.width()-1,suelo.position().y())
-  var position = posicionInicial
-
-  method image() = "coco1.png"
-  method position() = position
-  method iniciar(){
-      position = posicionInicial
-      game.onTick(velocidad,"moverVehiculo",{self.mover()})
-  }
-
-  method mover(){
-      position = position.left(1)
-      if (position.x() == -1)
-      position = posicionInicial
-  }
-}*/
-
-
-
-
-
-
-
-
