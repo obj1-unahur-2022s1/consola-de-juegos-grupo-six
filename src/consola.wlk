@@ -2,27 +2,22 @@ import wollok.game.*
 import juego.*
 
 object consola {
-
 	const juegos = [
-		new Juego(color = "Amarillo"),
-		new Juego(color = "Verde"),
-		new Juego(color = "Rojo"),
-		new Juego(color = "Azul"),
-		new Juego(color = "Naranja"),
-		new Juego(color = "Violeta")
+		new Juego(indice = 1, titulo = "Amarillo"),
+		new Juego(indice = 2, titulo = "Verde", velocidadDeAutos = 200),
+		new Juego(indice = 3, titulo = "Rojo", velocidadDeAutos = 200, vehiculosPorPunto = 4),
+		new Juego(indice = 4, titulo = "Azul", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 4),
+		new Juego(indice = 5, titulo = "Naranja", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
+		new Juego(indice = 6, titulo = "Violeta", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 1)
 	]
 	var menu 
 
 	method initialize(){
-		//game.height(12)
-		//game.width(17)
 		game.title("Consola de juegos")
-		
 		game.height(alto)
 		game.width(ancho)
 		game.ground("ground.png")
 		game.boardGround("scene.png")
-		
 	}
 
 	method iniciar(){
@@ -31,10 +26,8 @@ object consola {
 		juegos.forEach{juego=>menu.agregarItem(juego)}
 		menu.dibujar()
 		keyboard.enter().onPressDo{self.hacerIniciar(menu.itemSeleccionado())}
-
 	}
-
-	method hacerIniciar(juego){
+	method hacerIniciar(juego){	
 		game.clear()
 		keyboard.q().onPressDo{self.hacerTerminar(juego)}
 		juego.iniciar()
@@ -72,7 +65,7 @@ class MenuIconos{
 		}
 	}
 
-	method horizontal(indice) = (indice-1)% ancho * espaciado
+	method horizontal(indice) = (indice-1) % ancho * espaciado
 	method vertical(indice) = (indice-1).div(ancho) * espaciado
 
 	method posicionDe(indice) =

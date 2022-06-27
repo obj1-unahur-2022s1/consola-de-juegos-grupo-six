@@ -3,69 +3,63 @@ import consola.*
 
 class Juego {
 	var property position = null
-	var property color 
+	var property titulo
+	const indice = 0
+	const maximoDeAutos = 15
+	const velocidadDeAutos = 300
+	const vehiculosPorPunto = 3
 
 	method iniciar(){
-		gameDirector.iniciar()
-   //     game.addVisual(object{method position()= game.center() method text() = "Juego "+color + " - <q> para salir"})		
+		gameDirector.iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto)
 	}
 
 	method terminar(){
 		gameDirector.terminar()
 	}
-	method image() = "juego" + color + ".png"
-
-
+	method image() = "items/" + indice.toString() + ".png"
+	//method text() = titulo.toString()
 }
 
 const alto = 10
 const ancho = 20
 
-
 object gameDirector{
-	const vehiculos = [
-		//new Vehiculo(),
-		new Vehiculo()
-	]
+	const vehiculos = []
+	var maximoAutos = 0
 	var property vidas
+	var property incrementoDeVehiculos
 	
 	method initialize(){
-		// Configuracion de console
-		game.height(alto)
-		game.width(ancho)
-		game.ground("ground.png")
-		game.boardGround("scene.png")
-		
-		// Configuracion del juego
 		self.reiniciarConfiguracion()
 	}
 	method reiniciarConfiguracion(){
 		vidas = 3
 		pollo.puntaje(0)
 		pollo.reiniciarPosicion()
-		game.onTick(120, "vehicleDrive", { self.conducirTodos() })
+		score.reiniciarPosicion()
+		vehiculos.clear()
 		//game.keyboardEvent(reiniciar)
 	}
-	method iniciar(){
+	method iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto){
 		game.addVisual(score)
 		game.addVisualCharacter(pollo)
 		game.onCollideDo(pollo,{ obstaculo => obstaculo.colisiona()})
-		self.cantidadDeVehiculos().times({ i =>
-			game.schedule(i * 80, {self.instanciarVehiculo(i)})
-		})
+		game.onTick(velocidadDeAutos, "vehicleDrive", { self.conducirTodos() })
+		maximoAutos = maximoDeAutos
+		incrementoDeVehiculos = vehiculosPorPunto
 		
+		incrementoDeVehiculos.times({ i=>
+			self.aumentarVehiculos()
+		})
 		ancho.times({ i =>
-			self.instanciarMeta(i)
+			self.instanciarMeta(i, vehiculosPorPunto)
 		})
 	}
 	method aumentarVehiculos(){
-		//3.times({ i =>
-		if (vehiculos.size() < 15){
+		if (vehiculos.size() < maximoAutos){
 			vehiculos.add(new Vehiculo())
-			//self.instanciarVehiculo(vehiculos.size()-1 + i)
 			self.instanciarVehiculo(vehiculos.size()-1)
 		}
-		//})
 	}
 	method cantidadDeVehiculos(){
 		return vehiculos.size()-1
@@ -74,8 +68,8 @@ object gameDirector{
 		game.addVisual(vehiculos.get(i))
 		vehiculos.get(i).initialize()
 	}
-	method instanciarMeta(i){
-		game.addVisual(new Meta(position = game.at(i-1, 9)))
+	method instanciarMeta(i, vehiculosPorPunto){
+		game.addVisual(new Meta(position = game.at(i-1, 9), vehiculosAGenerar = vehiculosPorPunto))
 	}
 	method conducirTodos(){
 		vehiculos.forEach({ v=>
@@ -95,12 +89,12 @@ object gameDirector{
 		pollo.tenerAccidente()
 	}
 	method terminar(){
-		pollo.puntaje(0)
-		pollo.reiniciarPosicion()
+		self.reiniciarConfiguracion()
 	}
 }
 class Meta{
     const property image = "fizz.png"
+    const vehiculosAGenerar = 0
     var property position
 
     method colisiona(){
@@ -109,24 +103,9 @@ class Meta{
     	game.addVisual(new Danger(position = position))
         game.removeVisual(self)
         
-        3.times({ i =>
+        vehiculosAGenerar.times({ i =>
         	gameDirector.aumentarVehiculos()
         })
-        
-        /*
-        gameDirector.aumentarVehiculos()
-        gameDirector.aumentarVehiculos()
-        gameDirector.aumentarVehiculos()
-        gameDirector.aumentarVehiculos()
-        gameDirector.aumentarVehiculos()
-        gameDirector.aumentarVehiculos()
-        */
-        
-        //game.removeVisual(pollo)
-        //game.removeTickEvent("vehicleDrive")
-        
-        //game.addVisual(pollo)
-        //game.addVisual(win)
     }
 }
 class Vehiculo{
@@ -171,11 +150,6 @@ class Danger{
 
     method colisiona(){
     	gameDirector.perderVida()
-		//game.removeVisual(pollo)
-        //game.removeTickEvent("vehicleDrive")
-        
-        //game.addVisual(pollo)
-        //game.addVisual(win)
     }
 }
 object pollo{
@@ -187,13 +161,15 @@ object pollo{
 		if(puntaje == 20){
 			game.removeTickEvent("vehicleDrive")
 			score.position(game.center())
+			polloWin.posicionarAlPollo()
 			game.removeVisual(self)
 			game.addVisual(polloWin)
 		}
 	}
 	method tenerAccidente(){
+		polloFail.posicionarAlPollo()
 		game.removeVisual(self)
-		game.addVisual(polloWin)
+		game.addVisual(polloFail)
 	}
 	method reiniciarPosicion() { position = self.posicionInicial() }
 	method posicionInicial() = game.at(ancho / 2 ,0)
@@ -203,12 +179,28 @@ object polloWin{
 	var property position = pollo.position()
 	
 	method image() = "patoFrente.png"
+	method posicionarAlPollo(){
+		position = pollo.position()
+	}
+}
+object polloFail{
+	var property position = pollo.position()
+	
+	method image() = "patoFail.png"
+	method posicionarAlPollo(){
+		position = pollo.position()
+	}
 }
 object score{
-	var property position = game.at(16, 0)
+	var property position = self.posicionInicial()
 	
+	method posicionInicial(){
+		return game.at(16, 0)
+	}
+	method reiniciarPosicion(){
+		position = self.posicionInicial()
+	}
 	method text() = "PUNTOS: " + pollo.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
-
 	method colisiona(){}
 }
 
