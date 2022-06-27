@@ -111,6 +111,7 @@ object gameDirector{
 	method perder(){
 		game.removeTickEvent("vehicleDrive")
 		pato.tenerAccidente()
+		game.sound("gameOver.mp3").play()
 	}
 	method terminar(){
 		self.reiniciarConfiguracion()
@@ -126,6 +127,7 @@ class Meta{
     	pato.position(game.at(10,0))
     	game.addVisual(new Danger(position = position))
         game.removeVisual(self)
+        game.sound("coin.mp3").play()
         
         vehiculosAGenerar.times({ i =>
         	gameDirector.aumentarVehiculos()
@@ -140,6 +142,7 @@ class Vehiculo{
 	var property image = vestimenta.vehiculo(indiceVehiculo)
 	
 	method conducir(){
+		self.decirAlgo()
 		position = position.left( self.direccion() )
 		if(viaDerecha && position.x() < 1) self.reiniciarPosicion()
 		if(not viaDerecha && position.x() > ancho - 1) self.reiniciarPosicion()
@@ -166,9 +169,16 @@ class Vehiculo{
 		return game.at(-ancho.randomUpTo(0).roundUp(), yPos /* 100*/)
 	}
 	method colisiona(){
-		game.say(self, "COLISION!")
 		gameDirector.perderVida()
+		game.sound("colision.mp3").play()
 		//game.removeTickEvent("vehicleDrive")
+	}
+	method decirAlgo() {
+		const frasesRandom = ["TENGO HAMBRE","CUIDAO PATO","2+2=5","CUIDAO POLLO",
+								"GRUPO SIX","BIP BIP","ESTOY LOCO","ELLA NO TE AMA"]
+		if (1.randomUpTo(25).roundUp() < 3){
+			game.say(self,frasesRandom.anyOne())
+		}	
 	}
 	//method text() = position.y().toString()
 }
@@ -201,6 +211,7 @@ object pato{
 			patoWin.posicionarAlpato()
 			game.removeVisual(self)
 			game.addVisual(patoWin)
+			game.sound("win.mp3").play()
 		}
 	}
 	method tenerAccidente(){
@@ -228,7 +239,7 @@ object patoFail{
 		position = pato.position()
 	}
 	method actualizarFondo(){
-		image = vestimenta.fondo()
+		image = vestimenta.patoMorido()
 	}
 }
 object score{
