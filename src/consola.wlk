@@ -4,11 +4,11 @@ import juego.*
 object consola { 
 	const juegos = [
 		new Juego(indice = 1, titulo = "desiertoNevado"),
-		new Juego(indice = 2, titulo = "desiertoNevado", velocidadDeAutos = 200),
-		new Juego(indice = 3, titulo = "desiertoNevado", velocidadDeAutos = 200, vehiculosPorPunto = 4),
+		new Juego(indice = 2, titulo = "Bosque", velocidadDeAutos = 200),
+		new Juego(indice = 3, titulo = "Ciudad", velocidadDeAutos = 200, vehiculosPorPunto = 4),
 		new Juego(indice = 4, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 4),
-		new Juego(indice = 5, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
-		new Juego(indice = 6, titulo = "desiertoNevado", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
+		new Juego(indice = 5, titulo = "Bosque", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
+		new Juego(indice = 6, titulo = "Ciudad", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
 	] 
 	var menu 
 	const sonido = game.sound("Musica.mp3")
@@ -20,10 +20,12 @@ object consola {
 		game.boardGround("scene.png") 
 		 
 	}
-	method reproducirMusica(){
-		sonido.volume(0.5) 
-		sonido.shouldLoop(true)
-		sonido.play()
+	method reproducirMusica(){ 
+		if (not sonido.played()){
+			sonido.volume(0.5) 
+			sonido.shouldLoop(true)
+			sonido.play()
+		}
 	}
 	method reiniciarNivel(juego) {
         juego.terminar()

@@ -123,7 +123,7 @@ object vestimenta inherits Colision{
 		patoFail.actualizarFondo()
 	}
 }
-object vida{ // Aun sin terminar
+object vida inherits Colision{ 
 	var property image = "corazones3.png" 
 	var property position = game.at(0, 0)
 	
@@ -281,7 +281,7 @@ object score inherits Colision{
 	var property position = self.posicionInicial()
 	
 	method posicionInicial(){
-		return game.at(16, 0)
+		return game.at(16, 0) 
 	}
 	method reiniciarPosicion(){
 		position = self.posicionInicial()
