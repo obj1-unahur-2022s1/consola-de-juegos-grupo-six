@@ -1,7 +1,7 @@
 import wollok.game.* 
 import juego.*
 
-object consola {
+object consola { 
 	const juegos = [
 		new Juego(indice = 1, titulo = "desiertoNevado"),
 		new Juego(indice = 2, titulo = "desiertoNevado", velocidadDeAutos = 200),
@@ -14,13 +14,14 @@ object consola {
 	const sonido = game.sound("Musica.mp3")
 	
 	method initialize(){
-		game.title("Consola de juegos")
+		game.title("Wollocuack") 
 		game.height(alto)
 		game.width(ancho)
 		game.boardGround("scene.png") 
 		 
 	}
 	method reproducirMusica(){
+		sonido.volume(0.5) 
 		sonido.shouldLoop(true)
 		sonido.play()
 	}
@@ -28,13 +29,13 @@ object consola {
         juego.terminar()
         self.hacerIniciar(juego) 
     }
-	method iniciar(){
+	method iniciar(){ 
 		menu = new MenuIconos(posicionInicial = game.center().left(2))	
 		game.addVisual(menu)
 		juegos.forEach{juego=>menu.agregarItem(juego)}
 		menu.dibujar()
 		keyboard.enter().onPressDo{self.hacerIniciar(menu.itemSeleccionado())}
-		game.schedule(1,{self.reproducirMusica()}) 
+		game.schedule(1,{self.reproducirMusica()})
 	}
 	
 	method hacerIniciar(juego){	
@@ -62,10 +63,6 @@ class MenuIconos{
 		keyboard.down().onPressDo{self.abajo()}
 		keyboard.right().onPressDo{self.derecha()}
 		keyboard.left().onPressDo{self.izquierda()}
-		keyboard.w().onPressDo{self.arriba()}
-		keyboard.s().onPressDo{self.abajo()}
-		keyboard.d().onPressDo{self.derecha()}
-		keyboard.a().onPressDo{self.izquierda()} 
 	}
 
 	method agregarItem(item){

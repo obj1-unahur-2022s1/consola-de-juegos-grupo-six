@@ -286,6 +286,6 @@ object score inherits Colision{
 	method reiniciarPosicion(){
 		position = self.posicionInicial()
 	}
-	method text() = "PUNTOS: " + pato.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
+	method text() = "PUNTOS: " + pato.puntaje().toString()
 
 }
