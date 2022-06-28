@@ -9,14 +9,20 @@ object consola {
 		new Juego(indice = 4, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 4),
 		new Juego(indice = 5, titulo = "desiertoNevado", maximoDeAutos = 20, velocidadDeAutos = 150, vehiculosPorPunto = 6),
 		new Juego(indice = 6, titulo = "desiertoNevado", maximoDeAutos = 25, velocidadDeAutos = 110, vehiculosPorPunto = 8)
-	]
+	] 
 	var menu 
-
+	const sonido = game.sound("Musica.mp3")
+	
 	method initialize(){
 		game.title("Consola de juegos")
 		game.height(alto)
 		game.width(ancho)
-		game.boardGround("scene.png")
+		game.boardGround("scene.png") 
+		 
+	}
+	method reproducirMusica(){
+		sonido.shouldLoop(true)
+		sonido.play()
 	}
 	method reiniciarNivel(juego) {
         juego.terminar()
@@ -28,7 +34,9 @@ object consola {
 		juegos.forEach{juego=>menu.agregarItem(juego)}
 		menu.dibujar()
 		keyboard.enter().onPressDo{self.hacerIniciar(menu.itemSeleccionado())}
+		game.schedule(1,{self.reproducirMusica()}) 
 	}
+	
 	method hacerIniciar(juego){	
 		game.clear()
 		keyboard.r().onPressDo{self.reiniciarNivel(juego)}
@@ -42,7 +50,6 @@ object consola {
 	}
 }
 
-
 class MenuIconos{
 	var seleccionado = 1
 	const ancho = 3
@@ -55,6 +62,10 @@ class MenuIconos{
 		keyboard.down().onPressDo{self.abajo()}
 		keyboard.right().onPressDo{self.derecha()}
 		keyboard.left().onPressDo{self.izquierda()}
+		keyboard.w().onPressDo{self.arriba()}
+		keyboard.s().onPressDo{self.abajo()}
+		keyboard.d().onPressDo{self.derecha()}
+		keyboard.a().onPressDo{self.izquierda()} 
 	}
 
 	method agregarItem(item){

@@ -36,14 +36,18 @@ object gameDirector{
 		pato.puntaje(0)
 		pato.reiniciarPosicion()
 		score.reiniciarPosicion()
+		vida.actualizarCorazones()
 		vehiculos.clear()
 	}
+	
+	
 	method iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto){
 		vestimenta.actualizarVestimentas()
 		
 		// Agrega visuales principales
 		game.addVisual(fondo)
 		game.addVisual(score)
+		game.addVisual(vida)
 		game.addVisualCharacter(pato)
 		
 		// Configura colisiones y corutinas
@@ -85,6 +89,7 @@ object gameDirector{
 	}
 	method perderVida(){
 		vidas -= 1
+		vida.actualizarCorazones()
 		if (vidas == 0) self.perder() 
 		vidas = vidas.max(0) // Se evita que baje de 0 en caso de suceder (aunque no deberia)
 		pato.reiniciarPosicion()
@@ -99,8 +104,9 @@ object gameDirector{
 	}
 }
 
-object vestimenta{
+object vestimenta inherits Colision{
     var property vestimentaActual = ""
+
 
 	method meta() = vestimentaActual + "/meta.png" // Objetivo del pato
 	method danger() = vestimentaActual + "/danger.png" // Objetivo del pato
@@ -118,9 +124,12 @@ object vestimenta{
 	}
 }
 object vida{ // Aun sin terminar
-	var property image = "3vidas.png"
+	var property image = "corazones3.png" 
 	var property position = game.at(0, 0)
-	method text() = "VIDAS"
+	
+	method actualizarCorazones(){
+		image = "corazones/corazones" + gameDirector.vidas().toString() + ".png"
+	}
 }
 
 class Meta{
@@ -150,7 +159,7 @@ class Vehiculo{
 	var indiceVehiculo = self.indiceAleatorioNuevo() // Define cual skin de vehiculo utiliza
 	var property image = vestimenta.vehiculo(indiceVehiculo)
 	
-	method conducir(){
+	method conducir(){ 
 		self.decirAlgo()
 		
 		//Moverse
@@ -177,7 +186,7 @@ class Vehiculo{
 		const yPos = 1.randomUpTo(8).roundUp() // Define algun carril de los 8 disponibles
 		viaDerecha = (yPos % 2 == 0)
 		
-		if(viaDerecha){
+		if(viaDerecha){ 
 			image = vestimenta.vehiculoFlip(indiceVehiculo)
 			return game.at(ancho.randomUpTo(ancho*2).roundUp(), yPos)
 		}
@@ -206,7 +215,12 @@ class Danger{
     	game.sound("colision.mp3").play()
     }
 }
-object fondo{
+
+class Colision{
+	method colisiona(){}
+	
+}
+object fondo inherits Colision{ 
 	var property image = vestimenta.fondo()
 	
 	method actualizarFondo(){
@@ -238,6 +252,7 @@ object pato{
 		patoFail.posicionarAlpato()
 		game.removeVisual(self)
 		game.addVisual(patoFail)
+		
 	}
 	method reiniciarPosicion() { position = self.posicionInicial() }
 	method posicionInicial() = game.at(ancho / 2 ,0)
@@ -251,7 +266,7 @@ object patoWin{
 		position = pato.position()
 	}
 }
-object patoFail{
+object patoFail{ 
 	var property position = pato.position()
 	var property image = vestimenta.patoMorido()
 	
@@ -262,7 +277,7 @@ object patoFail{
 		image = vestimenta.patoMorido()
 	}
 }
-object score{
+object score inherits Colision{ 
 	var property position = self.posicionInicial()
 	
 	method posicionInicial(){
@@ -272,5 +287,5 @@ object score{
 		position = self.posicionInicial()
 	}
 	method text() = "PUNTOS: " + pato.puntaje().toString() + "VIDAS: " + gameDirector.vidas().toString()
-	method colisiona(){}
+
 }
