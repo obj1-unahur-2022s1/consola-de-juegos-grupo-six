@@ -4,5 +4,4 @@ import wollok.game.*
 program juegos {
 	consola.iniciar() 
 	game.start() 
-	
 } 

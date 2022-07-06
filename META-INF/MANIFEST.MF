@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ConsolaDeJuegos
 Bundle-Vendor: My Company
 Bundle-Version: 1.0.0.qualifier
-Bundle-SymbolicName: ConsolaDeJuegos; singleton:=true
+Bundle-SymbolicName: wollocuack;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.icu,
  org.eclipse.xtext,

@@ -1,26 +1,20 @@
 import wollok.game.*
 import consola.*
+import wollocuack.*
 
 class Juego {
 	var property position = null
-	var property titulo
-	const indice = 0 // Indice de imagen en consola
-	const maximoDeAutos = 15
-	const velocidadDeAutos = 300 // Tiempo entre pasos para vehiculos
-	const vehiculosPorPunto = 3
-
+	var property color = null
+	
 	method iniciar(){
-		vestimenta.vestimentaActual(titulo) // Establece la vestimenta antes de iniciar
-		gameDirector.iniciar(maximoDeAutos, velocidadDeAutos, vehiculosPorPunto)
+        game.addVisual(object{method position()= game.center() method text() = "Juego "+color + " - <q> para salir"})		
 	}
-	method terminar(){
-		gameDirector.terminar()
-	}
-	method image() = "items/" + indice.toString() + ".png"
-}
+	
+	method terminar(){}
+	
+	method image() = "juego" + color + ".png"
 
-const alto = 10 // 10 x 50 500
-const ancho = 20 // 20 x 50 1000
+}
 
 object gameDirector{
 	const vehiculos = []
@@ -62,7 +56,7 @@ object gameDirector{
 		})
 		
 		// Se agregan los objetivos a recolectar
-		ancho.times({ i =>
+		game.width().times({ i =>
 			self.instanciarMeta(i, vehiculosPorPunto)
 		})
 	}
@@ -167,7 +161,7 @@ class Vehiculo{
 		
 		// Reposicionar al irse de los limites
 		if(viaDerecha && position.x() < 0) self.reiniciarPosicion()
-		if(not viaDerecha && position.x() > ancho - 1) self.reiniciarPosicion()
+		if(not viaDerecha && position.x() > game.width() - 1) self.reiniciarPosicion()
 	}
 	method indiceAleatorioNuevo(){
 		return 0.randomUpTo(3).roundUp()
@@ -188,10 +182,10 @@ class Vehiculo{
 		
 		if(viaDerecha){ 
 			image = vestimenta.vehiculoFlip(indiceVehiculo)
-			return game.at(ancho.randomUpTo(ancho*2).roundUp(), yPos)
+			return game.at(game.width().randomUpTo(game.width()*2).roundUp(), yPos)
 		}
 		image = vestimenta.vehiculo(indiceVehiculo)
-		return game.at(-ancho.randomUpTo(0).roundUp(), yPos)
+		return game.at(-game.width().randomUpTo(0).roundUp(), yPos)
 	}
 	method colisiona(){
 		gameDirector.perderVida()
@@ -255,7 +249,7 @@ object pato{
 		
 	}
 	method reiniciarPosicion() { position = self.posicionInicial() }
-	method posicionInicial() = game.at(ancho / 2 ,0)
+	method posicionInicial() = game.at(game.width() / 2 ,0)
 }
 object patoWin{
 	var property position = pato.position()
