@@ -32,7 +32,7 @@ object menuPrincipal {
         self.hacerIniciar(nivel) 
     }
 	method iniciar(){ 
-		menu = new MenuIconos(posicionInicial = game.center().left(2))	
+		menu = new MenuIconos(posicionInicial = game.at(6,4)) 	
 		game.addVisual(menu)
 		niveles.forEach{nivel=>menu.agregarItem(nivel)}
 		menu.dibujar()

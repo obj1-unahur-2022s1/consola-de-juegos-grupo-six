@@ -148,7 +148,7 @@ class Meta{
 }
 class Vehiculo{
 	var property viaDerecha = true
-	var property position = game.at(-10.randomUpTo(30).roundUp(), 1.randomUpTo(8).roundUp()) // Posicion aleatoria sin normalizar
+	var property position = game.at(-10.randomUpTo(30).roundUp(), 1.randomUpTo(game.height()).roundUp()) // Posicion aleatoria sin normalizar
 	var property velocidad = 1
 	var indiceVehiculo = self.indiceAleatorioNuevo() // Define cual skin de vehiculo utiliza
 	var property image = vestimenta.vehiculo(indiceVehiculo)
@@ -177,7 +177,7 @@ class Vehiculo{
 		position = self.posicionInicial()
 	}
 	method posicionInicial(){
-		const yPos = 1.randomUpTo(8).roundUp() // Define algun carril de los 8 disponibles
+		const yPos = self.carrilAleatorio() // Define algun carril de los 8 disponibles
 		viaDerecha = (yPos % 2 == 0)
 		
 		if(viaDerecha){ 
@@ -186,6 +186,13 @@ class Vehiculo{
 		}
 		image = vestimenta.vehiculo(indiceVehiculo)
 		return game.at(-game.width().randomUpTo(0).roundUp(), yPos)
+	}
+	method carrilAleatorio(){
+		var carril = 1.randomUpTo(game.height()).roundUp()
+		if (carril == 9){
+			return self.carrilAleatorio()
+		}
+		return carril
 	}
 	method colisiona(){
 		gameDirector.perderVida()
@@ -229,7 +236,7 @@ object pato{
 	
 	method aumentarPuntaje(puntos){
 		puntaje += puntos
-		if(puntaje == 20){
+		if(puntaje == game.width()){
 			game.removeTickEvent("vehicleDrive") // Detiene los vehiculos
 			score.position(game.center()) // Centra el puntaje al ganar
 			patoWin.posicionarAlpato() // Reposiciona al pato para que no sea controlable
@@ -275,7 +282,7 @@ object score inherits Colision{
 	var property position = self.posicionInicial()
 	
 	method posicionInicial(){
-		return game.at(16, 0) 
+		return game.at(12, 0) 
 	}
 	method reiniciarPosicion(){
 		position = self.posicionInicial()
